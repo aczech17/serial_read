@@ -6,8 +6,10 @@ using std::cin, std::cout, std::endl, std::cerr;
 
 class Port
 {
+public:
     HANDLE hComm;
     DCB serialConfig = {0};
+    COMMTIMEOUTS timeouts = {0};
     const char* portName;
     DWORD BaudRate;
 public:
@@ -15,8 +17,9 @@ public:
     {
         int x;
         int y;
+        bool pushed;
     };
-private:
+//private:
     std::string readLine()
     {
         char tempChar;
@@ -46,9 +49,15 @@ private:
 
         //second number
         j++;
-
-        std::string str2 = str.substr(j, str.size() - j - 1);// no copy endl (no no no, why you copy my movies?)
+        i = j;
+        while(str[j] != ' ')
+            j++;
+        std::string str2 = str.substr(i, j - i);
         result.y = std::stoi(str2);
+
+        //pushed
+        j++;
+        result.pushed = str[j] - '0';
 
         return result;
     }
@@ -69,11 +78,13 @@ public:
         serialConfig.ByteSize = 8;
         serialConfig.StopBits = ONESTOPBIT;
         serialConfig.Parity = NOPARITY;
-    }
 
-    ~Port()
-    {
-        CloseHandle(hComm);
+        timeouts.ReadIntervalTimeout = 50;
+        timeouts.ReadTotalTimeoutConstant = 50;
+        timeouts.ReadTotalTimeoutMultiplier = 10;
+        timeouts.WriteTotalTimeoutConstant = 50;
+        timeouts.WriteTotalTimeoutMultiplier = 10;
+        SetCommTimeouts(hComm, &timeouts);
     }
 
     Position getPosition()
@@ -81,29 +92,47 @@ public:
         std::string str = readLine();
         return getPosFromStr(str);
     }
+
+    ~Port()
+    {
+        CloseHandle(hComm);
+    }
 };
 
 
 struct JoystickPosition
 {
     int x, y;
+    bool pushed;
     JoystickPosition& operator=(Port::Position pos)
     {
         x = pos.x;
         y = pos.y;
+        pushed = pos.pushed;
         return *this;
     }
 };
 
+
+
+
 int main(int argc, char **argv)
 {
-    Port p1;
-    JoystickPosition pos = {0, 0};
-    for(int i = 0; i < 20; ++i)
-    {
-        pos = p1.getPosition();
-        cout<<"x: " << pos.x << " y: " << pos.y << endl;
-    }
+        try
+        {
+            Port port("COM3");
+            JoystickPosition position = {0, 0, 0};
+            size_t msgCount = 250;
+            for(size_t i = 1; i <= msgCount; i++)
+            {
+                position = port.getPosition();
+                cout << position.x << " " << position.y << " " << position.pushed << endl;
+            }
+        }
+        catch(std::ios_base::failure ex)
+        {
+            cerr << ex.what() << endl;
+        }
 
     return 0;
 }
