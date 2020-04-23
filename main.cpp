@@ -6,7 +6,6 @@ using std::cin, std::cout, std::endl, std::cerr;
 
 class Port
 {
-public:
     HANDLE hComm;
     DCB serialConfig = {0};
     COMMTIMEOUTS timeouts = {0};
