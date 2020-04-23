@@ -13,13 +13,19 @@ public:
     const char* portName;
     DWORD BaudRate;
 public:
-    struct Position
+    class Position
     {
         int x;
         int y;
         bool pushed;
+        friend class Port;
+    public:
+        Position() : x(0), y(0), pushed(false) {}
+        int getX() {return x;}
+        int getY() {return y;}
+        bool getPushed() {return pushed;}
     };
-//private:
+private:
     std::string readLine()
     {
         char tempChar;
@@ -35,7 +41,7 @@ public:
 
     Position getPosFromStr(std::string str)
     {
-        Position result = {0, 0};
+        Position result;
         int i = 0;
         //ignore artifacts
         while(str[i] < '0' || str[i] > '9')
@@ -106,9 +112,9 @@ struct JoystickPosition
     bool pushed;
     JoystickPosition& operator=(Port::Position pos)
     {
-        x = pos.x;
-        y = pos.y;
-        pushed = pos.pushed;
+        x = pos.getX();
+        y = pos.getY();
+        pushed = pos.getPushed();
         return *this;
     }
 };
@@ -121,7 +127,7 @@ int main(int argc, char **argv)
         try
         {
             Port port("COM3");
-            JoystickPosition position = {0, 0, 0};
+            JoystickPosition position = {0, 0, false};
             size_t msgCount = 250;
             for(size_t i = 1; i <= msgCount; i++)
             {
@@ -129,9 +135,10 @@ int main(int argc, char **argv)
                 cout << position.x << " " << position.y << " " << position.pushed << endl;
             }
         }
-        catch(std::ios_base::failure ex)
+        catch(std::ios_base::failure& ex)
         {
             cerr << ex.what() << endl;
+            return 1;
         }
 
     return 0;
