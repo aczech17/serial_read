@@ -79,7 +79,7 @@ public:
         }
 
         serialConfig.DCBlength = sizeof(serialConfig); // ???
-        serialConfig.BaudRate = CBR_9600;
+        serialConfig.BaudRate = BaudRate;
         serialConfig.ByteSize = 8;
         serialConfig.StopBits = ONESTOPBIT;
         serialConfig.Parity = NOPARITY;
