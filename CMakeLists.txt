@@ -3,4 +3,4 @@ project(serial_read)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(serial_read main.cpp)
+add_executable(serial_read cmake-build-debug/main.cpp cmake-build-debug/Port.cpp cmake-build-debug/Port.h)
