@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string>
 #include <ios> //ios::exception
+
 class Port
 {
     HANDLE hComm;

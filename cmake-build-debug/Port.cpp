@@ -64,15 +64,19 @@
             throw(std::ios_base::failure(errMsg));
         }
 
-        serialConfig.DCBlength = sizeof(serialConfig); // ???
+
+
+        serialConfig.DCBlength = sizeof(serialConfig);
         serialConfig.BaudRate = BaudRate;
         serialConfig.ByteSize = 8;
         serialConfig.StopBits = ONESTOPBIT;
         serialConfig.Parity = NOPARITY;
+        serialConfig.fRtsControl = RTS_CONTROL_ENABLE;
+        SetCommState(hComm, &serialConfig);
 
         timeouts.ReadIntervalTimeout = 50;
-        timeouts.ReadTotalTimeoutConstant = 50;
-        timeouts.ReadTotalTimeoutMultiplier = 10;
+        timeouts.ReadTotalTimeoutConstant = 100;
+        timeouts.ReadTotalTimeoutMultiplier = 1;
         timeouts.WriteTotalTimeoutConstant = 50;
         timeouts.WriteTotalTimeoutMultiplier = 10;
         SetCommTimeouts(hComm, &timeouts);
