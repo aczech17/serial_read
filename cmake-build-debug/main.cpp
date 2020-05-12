@@ -3,37 +3,29 @@
 
 using std::cin, std::cout, std::endl, std::cerr;
 
-struct JoystickPosition
-{
-    int x, y;
-    bool pushed;
-    JoystickPosition& operator=(Port::Position pos)
-    {
-        x = pos.getX();
-        y = pos.getY();
-        pushed = pos.getPushed();
-        return *this;
-    }
-};
-
 int main()
 {
+    const int portsCount = 25;
+    for(int i = 0; i < portsCount; ++i)
+    {
+        std::string portName = "COM" + std::to_string(i);
         try
         {
-            Port port("COM3");
-            JoystickPosition position = {0, 0, false};
-            size_t msgCount = 250;
-            for(size_t i = 1; i <= msgCount; i++)
+            Port port(portName.data()); //const char* required in constructor
+            Port::Position position;
+            for(int j  = 0; j < 20000; j++)
             {
                 position = port.getPosition();
-                cout << position.x << " " << position.y << " " << position.pushed << endl;
+                cout<<position.getX() << " " << position.getY() << " " << position.getPushed() << endl;
             }
         }
-        catch(std::exception& ex)
+        catch(std::ios_base::failure& exc)
         {
-            cerr << ex.what() << endl;
-            return 1;
+            cerr << exc.what() << endl;
+            continue;
         }
+        break;
+    }
 
     return 0;
 }
